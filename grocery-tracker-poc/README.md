@@ -20,7 +20,7 @@ This app was developed with python 3.13.7 on Fedora 42 Linux.
 
     ```
     source .venv/bin/activate
-    deactivate # use this to exist the virtualenv
+    deactivate # use this to exit the virtualenv
     ```
 
 1. Install required python packages.
