@@ -2,6 +2,35 @@
 
 Pull pricing and availability data (where available) about certain food items to see which store has the best price and if there are any sales. The proof of concept is as basic as possible, missing lots of features, but just trying to see how well this would work.
 
+## Getting Starting
+
+This app was developed with python 3.13.7 on Fedora 42 Linux.
+
+### Setup
+
+1. Install python3 and pip.
+
+1. Create virtual environment in this directory.
+
+   ```
+   python -m venv .venv
+   ```
+
+1. Enter the virtual environment.
+
+    ```
+    source .venv/bin/activate
+    deactivate # use this to exist the virtualenv
+    ```
+
+1. Install required python packages.
+
+    ```
+    pip install -r requirements.txt
+    ```
+
+1. The rest TBD.
+
 ## Basic Use Case
 
 To check the price of strawberries, scrap the websites of the following stores:
