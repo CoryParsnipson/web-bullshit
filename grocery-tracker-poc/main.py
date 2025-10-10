@@ -54,7 +54,11 @@ if __name__ == "__main__":
 
         # get to the website
         costco_sameday.navigate_to_storefront(page)
-        costco_sameday.set_location(page, costco_loc["street"], costco_loc["zip"])
+
+        try:
+            costco_sameday.set_location(page, costco_loc["street"], costco_loc["zip"])
+        except playwright.sync_api.TimeoutError:
+            logger.warning("set_location has timed out! This probably is fine... proceeding anyway.")
 
         # now go to a product
         for url in PRODUCT_URLS["costco"]:

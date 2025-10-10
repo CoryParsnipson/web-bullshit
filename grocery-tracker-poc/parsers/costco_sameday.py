@@ -136,6 +136,7 @@ def get_product_price(page):
     Parse the price of the product.
 
     :param page: valid handle to playwright.sync_api.Page to control browser
+
     :return: float with product price, or None if none available
     """
     tag = __name__ + "." + inspect.stack()[0][0].f_code.co_name
