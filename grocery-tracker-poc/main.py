@@ -1,6 +1,8 @@
+from datetime import datetime
 import logging
-# NOTE: figure out how to use async playwright for better performance
 from playwright.sync_api import expect, sync_playwright
+
+from parsers import costco_sameday
 
 # NOTE: hard code these urls for now, but real product should either crawl or
 # let the user search and bookmark items
@@ -44,8 +46,32 @@ if __name__ == "__main__":
         logger.info("Loading new tab...")
         page = context.new_page()
 
-        logger.info("Browsing to " + PRODUCT_URLS["costco"][0] + "...")
-        page.goto(PRODUCT_URLS["costco"][0])
+        # hardcoded for now
+        costco_loc = {
+            "street": "Rengstorff Avenue",
+            "zip": "94041"
+        }
+
+        # get to the website
+        costco_sameday.navigate_to_storefront(page)
+        costco_sameday.set_location(page, costco_loc["street"], costco_loc["zip"])
+
+        # now go to a product
+        for url in PRODUCT_URLS["costco"]:
+            page.goto(url)
+
+            # extract information
+            product = {
+                "name": costco_sameday.get_product_name(page),
+                "sku": costco_sameday.get_product_inventory_number(page),
+                "price": costco_sameday.get_product_price(page),
+                "availability": costco_sameday.get_product_availability(page),
+                "date": datetime.now(),
+                "location": costco_loc["street"] + ", " + costco_loc["zip"]
+            }
+
+            logger.info(f"Extracted information for \"{product['name']}\" from {PRODUCT_URLS['costco'][0]}...")
+            logger.info(f"{product}")
 
         logger.info("Taking screenshot...")
         page.screenshot(path="test-screenshot.no-git.png")
