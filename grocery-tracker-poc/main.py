@@ -2,6 +2,7 @@ from datetime import datetime
 import inspect
 import logging
 from playwright.sync_api import expect, Page, Playwright, sync_playwright, TimeoutError
+from playwright_stealth import Stealth
 
 from parsers import costco_sameday, safeway
 
@@ -64,7 +65,26 @@ def make_browser(playwright: Playwright, launch_config = {}, browser_config = {}
 
 
 def check_sannysoft(page: Page):
-    page.goto("https://bot.sannysoft.com/")
+    """
+    Go to sannysoft diagnostic page. Also print some useful info.
+
+    :param page: playwright page object
+    """
+    tag = __name__ + "." + inspect.stack()[0][0].f_code.co_name
+
+    if not isinstance(page, Page):
+        raise ValueError(
+            f"({tag}) invalid page parameter. Expecting type playwright.sync_api.Page, "
+            f"received {type(page)} instead"
+        )
+
+    logger.info(f"({tag}) running diagnostics...")
+
+    webdriver_status = page.evaluate("navigator.webdriver")
+    logger.info(f"({tag}) webdriver status -> navigator.webdriver == {'True' if webdriver_status else 'False'}")
+
+    logger.warning(f"({tag}) Page load may get stuck. You may need to Ctrl+C out of this...")
+    page.goto("https://bot.sannysoft.com/", timeout = 0)
     page.pause()
 
 
@@ -134,7 +154,7 @@ def get_costco_products():
 
 
 if __name__ == "__main__":
-    with sync_playwright() as p:
+    with Stealth().use_sync(sync_playwright()) as p:
         browser, context = make_browser(
             playwright = p,
             launch_config = { "headless": False },
@@ -144,12 +164,6 @@ if __name__ == "__main__":
         logger.info("Loading new tab...")
         page = context.new_page()
 
-        # get rid of webdriver property (which is strongly marking this browser as a bot)
-        page.add_init_script("delete Object.getPrototypeOf(navigator).webdriver")
-
-        user_agent = page.evaluate("navigator.userAgent")
-        logger.info(f"User agent: {user_agent}")
-
-        check_sannysoft()
+        check_sannysoft(page)
 
         browser.close()
