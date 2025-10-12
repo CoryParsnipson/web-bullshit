@@ -70,7 +70,7 @@ def set_location(page, street_address, zipcode):
             f"instead received {type(page)}"
         )
 
-    logger.info(f"({tag}) Setting location to {street_address + ' ' + zipcode}...")
+    logger.info(f"({tag}) Setting location to {street_address + ' ' + str(zipcode)}...")
 
     logger.info(f"({tag}) Waiting for delivery address box to load...")
     expect(page.get_by_role("button").filter(has_text="Delivery")).to_be_visible(timeout=30000)
@@ -122,10 +122,12 @@ def get_product_inventory_number(page):
     tag = __name__ + "." + inspect.stack()[0][0].f_code.co_name
 
     content = page.locator("id=item_details").locator("div").nth(1)
-    product_inventory_number = content \
-        .locator("div:text('Item:')") \
-        .inner_text() \
-        .replace("Item: ", "") \
+    product_inventory_number = (
+        content
+            .locator("div:text('Item:')")
+            .inner_text()
+            .replace("Item: ", "")
+    )
 
     logger.info(f"({tag}) Found product inventory number: {product_inventory_number}")
     return product_inventory_number

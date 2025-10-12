@@ -1,8 +1,8 @@
 from datetime import datetime
 import logging
-from playwright.sync_api import expect, sync_playwright
+from playwright.sync_api import expect, sync_playwright, TimeoutError
 
-from parsers import costco_sameday
+from parsers import costco_sameday, safeway
 
 # NOTE: hard code these urls for now, but real product should either crawl or
 # let the user search and bookmark items
@@ -46,6 +46,12 @@ if __name__ == "__main__":
         logger.info("Loading new tab...")
         page = context.new_page()
 
+        # get rid of webdriver property (which is strongly marking this browser as a bot)
+        page.add_init_script("delete Object.getPrototypeOf(navigator).webdriver")
+
+        user_agent = page.evaluate("navigator.userAgent")
+        logger.info(f"User agent: {user_agent}")
+
         # hardcoded for now
         costco_loc = {
             "street": "Rengstorff Avenue",
@@ -57,7 +63,7 @@ if __name__ == "__main__":
 
         try:
             costco_sameday.set_location(page, costco_loc["street"], costco_loc["zip"])
-        except playwright.sync_api.TimeoutError:
+        except TimeoutError:
             logger.warning("set_location has timed out! This probably is fine... proceeding anyway.")
 
         # now go to a product
@@ -71,10 +77,10 @@ if __name__ == "__main__":
                 "price": costco_sameday.get_product_price(page),
                 "availability": costco_sameday.get_product_availability(page),
                 "date": datetime.now(),
-                "location": costco_loc["street"] + ", " + costco_loc["zip"]
+                "location": costco_loc["street"] + ", " + costco_loc["zip"],
             }
 
-            logger.info(f"Extracted information for \"{product['name']}\" from {PRODUCT_URLS['costco'][0]}...")
+            logger.info(f"Extracted information for \"{product['name']}\" from {url}...")
             logger.info(f"{product}")
 
         logger.info("Taking screenshot...")
