@@ -7,6 +7,7 @@ import random
 import time
 
 import config
+import diagnostic
 from parsers import costco_sameday, safeway
 
 logger = logging.getLogger(__name__)
@@ -37,30 +38,6 @@ def make_browser(playwright: Playwright, launch_config = {}, browser_config = {}
     context = browser.new_context(**browser_config)
 
     return (browser, context)
-
-
-def check_sannysoft(page: Page):
-    """
-    Go to sannysoft diagnostic page. Also print some useful info.
-
-    :param page: playwright page object
-    """
-    tag = __name__ + "." + inspect.stack()[0][0].f_code.co_name
-
-    if not isinstance(page, Page):
-        raise ValueError(
-            f"({tag}) invalid page parameter. Expecting type playwright.sync_api.Page, "
-            f"received {type(page)} instead"
-        )
-
-    logger.info(f"({tag}) running diagnostics...")
-
-    webdriver_status = page.evaluate("navigator.webdriver")
-    logger.info(f"({tag}) webdriver status -> navigator.webdriver == {'True' if webdriver_status else 'False'}")
-
-    logger.warning(f"({tag}) Page load may get stuck. You may need to Ctrl+C out of this...")
-    page.goto("https://bot.sannysoft.com/", timeout = 0)
-    page.pause()
 
 
 def get_safeway_products(page: Page):
@@ -161,6 +138,6 @@ if __name__ == "__main__":
         logger.info("Loading new tab...")
         page = context.new_page()
 
-        check_sannysoft(page)
+        diagnostic.goto_sannysoft(page)
 
         browser.close()
