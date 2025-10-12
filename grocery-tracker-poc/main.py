@@ -3,36 +3,11 @@ import inspect
 import logging
 from playwright.sync_api import expect, Page, Playwright, sync_playwright, TimeoutError
 from playwright_stealth import Stealth
+import random
+import time
 
+import config
 from parsers import costco_sameday, safeway
-
-# NOTE: hard code these urls for now, but real product should either crawl or
-# let the user search and bookmark items
-PRODUCT_URLS = {
-    "costco" : [
-        "https://sameday.costco.com/store/costco/products/18876359-strawberries-2-lbs-2-lb",
-        "https://sameday.costco.com/store/costco/products/18848254-organic-strawberries-2",
-    ],
-    "safeway": [
-        "https://www.safeway.com/shop/product-details.184070124.html", # 1lb prepacked strawberries
-        "https://www.safeway.com/shop/product-details.960012546.html", # 2lb prepacked strawberries
-        "https://www.safeway.com/shop/product-details.184700156.html", # 1lb organic strawberries
-    ],
-    "smart-and-final": [
-        "https://www.smartandfinal.com/sm/planning/rsid/327/product/strawberries-id-00853447003390",
-        "https://www.smartandfinal.com/sm/planning/rsid/327/product/organic-strawberries-id-00853447003642"
-    ],
-    "trader-joes": [
-        "https://www.traderjoes.com/home/products/pdp/strawberries-1-lb-035878",
-        "https://www.traderjoes.com/home/products/pdp/strawberries-2-lb-078515",
-        "https://www.traderjoes.com/home/products/pdp/organic-strawberries-1-lb-080331",
-    ],
-    "whole-foods": [
-        "https://www.amazon.com/Produce-ambient-room-temperature-Strawberries/dp/B08911ZP3Y?almBrandId=VUZHIFdob2xlIEZvb2Rz&fpw=alm&s=wholefoods",
-        "https://www.amazon.com/Fresh-Produce-Brands-Vary-040/dp/B002B8Z98W?almBrandId=VUZHIFdob2xlIEZvb2Rz&fpw=alm&s=wholefoods",
-        "https://www.amazon.com/Fresh-Produce-Brands-May-Vary/dp/B07PQNBKCK?almBrandId=VUZHIFdob2xlIEZvb2Rz&fpw=alm&s=wholefoods"
-    ],
-}
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format = "[%(levelname)s] %(message)s")
@@ -105,7 +80,13 @@ def get_safeway_products(page: Page):
     safeway.navigate_to_storefront(page)
     safeway.set_location(page, safeway_loc["street"], safeway_loc["zip"])
 
-    for url in PRODUCT_URLS["safeway"]:
+    for url in config.PRODUCT_URLS["safeway"]:
+        page_nav_delay = 10 + random.uniform(-5, 30)
+
+        logger.info(f"({tag}) sleeping for {page_nav_delay} seconds before navigating...")
+        time.sleep(page_nav_delay)
+
+        logger.info(f"({tag}) browsing to {url} now...")
         page.goto(url)
 
         # extract information
@@ -149,7 +130,7 @@ def get_costco_products(page: Page):
         logger.warning("set_location has timed out! This probably is fine... proceeding anyway.")
 
     # now go to a product
-    for url in PRODUCT_URLS["costco"]:
+    for url in config.PRODUCT_URLS["costco"]:
         page.goto(url)
 
         # extract information
