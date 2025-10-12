@@ -65,7 +65,10 @@ def set_location(page, street_address, zipcode):
     address_selector.click()
 
     # fill out address form
-    page.get_by_placeholder("Enter ZIP Code to get started.").fill(zipcode)
+    zipcode_input = page.get_by_placeholder("Enter ZIP Code to get started.")
+    expect(zipcode_input).to_be_visible()
+
+    zipcode_input.fill(zipcode)
     page.get_by_label("search Zipcode").click()
 
     #page.wait_for_load_state("networkidle")
