@@ -1,7 +1,7 @@
 import inspect
 import logging
 import playwright
-from playwright.sync_api import expect
+from playwright.sync_api import expect, Page
 import re
 
 DEFAULT_ZIPCODE = "94041"
@@ -10,7 +10,7 @@ STOREFRONT_URL = "https://sameday.costco.com"
 logger = logging.getLogger(__name__)
 extract_price_re = re.compile(r"Current price:\s+\$(?P<price>[0-9]+\.[0-9]{2})")
 
-def navigate_to_storefront(page, storefront_url = STOREFRONT_URL):
+def navigate_to_storefront(page: Page, storefront_url = STOREFRONT_URL):
     """
     Navigate a playwright browser to the store front so that it is ready for
     further operations. This involves dismissing any modal pop-ups and anything
@@ -23,7 +23,7 @@ def navigate_to_storefront(page, storefront_url = STOREFRONT_URL):
     """
     tag = __name__ + "." + inspect.stack()[0][0].f_code.co_name
 
-    if not isinstance(page, playwright.sync_api.Page):
+    if not isinstance(page, Page):
         raise ValueError(
             f"({tag}) page parameter is invalid. Expecting type playwright.sync_api.Page, "
             f"instead received {type(page)}"
@@ -52,7 +52,7 @@ def navigate_to_storefront(page, storefront_url = STOREFRONT_URL):
         modal_notification.click()
 
 
-def set_location(page, street_address, zipcode):
+def set_location(page: Page, street_address, zipcode):
     """
     Sets the location using the in-page store locator dialog.
 
@@ -64,7 +64,7 @@ def set_location(page, street_address, zipcode):
     """
     tag = __name__ + "." + inspect.stack()[0][0].f_code.co_name
 
-    if not isinstance(page, playwright.sync_api.Page):
+    if not isinstance(page, Page):
         raise ValueError(
             f"({tag}) page parameter is invalid. Expecting type playwright.sync_api.Page, "
             f"instead received {type(page)}"

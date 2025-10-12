@@ -1,6 +1,7 @@
 from datetime import datetime
+import inspect
 import logging
-from playwright.sync_api import expect, sync_playwright, TimeoutError
+from playwright.sync_api import expect, Page, Playwright, sync_playwright, TimeoutError
 
 from parsers import costco_sameday, safeway
 
@@ -35,13 +36,110 @@ PRODUCT_URLS = {
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format = "[%(levelname)s] %(message)s")
 
+
+def make_browser(playwright: Playwright, launch_config = {}, browser_config = {}):
+    """
+    Make a playwright browser instance
+
+    :param playwright: playwright instance
+    :param launch_config: dictionary with playwright launch config parameters
+    :param browser_config: dictionary with playwright browser context parameters
+
+    :returns: tuple with browser and context
+    """
+    tag = __name__ + "." + inspect.stack()[0][0].f_code.co_name
+
+    if not isinstance(playwright, Playwright):
+        raise ValueError(
+            f"({tag}) invalid playwright parameter. Expecting type playwright.sync_api.Playwright, "
+            f"received {type(playwright)} instead"
+        )
+
+    browser = p.firefox.launch(**launch_config)
+
+    logger.info("Creating new browser instance...")
+    context = browser.new_context(**browser_config)
+
+    return (browser, context)
+
+
+def check_sannysoft(page: Page):
+    page.goto("https://bot.sannysoft.com/")
+    page.pause()
+
+
+def get_safeway_products(page: Page):
+    safeway_loc = {
+        "street": "639 S Bernardo Ave",
+        "zip": "94087",
+    }
+
+    safeway.navigate_to_storefront(page)
+    safeway.set_location(page, safeway_loc["street"], safeway_loc["zip"])
+
+    for url in PRODUCT_URLS["safeway"]:
+        page.goto(url)
+
+        # extract information
+        product = {
+            "name": safeway.get_product_name(page),
+            "sku": safeway.get_product_inventory_number(page),
+            "price": safeway.get_product_price(page),
+            "availability": None,
+            "date": datetime.now(),
+            "location": safeway_loc["street"] + ", " + safeway_loc["zip"],
+        }
+
+        logger.info(f"Extracted information for \"{product['name']}\" from {url}...")
+        logger.info(f"{product}")
+
+    logger.info("Taking screenshot...")
+    page.screenshot(path="test-screenshot.no-git.png")
+
+
+def get_costco_products():
+    # hardcoded for now
+    costco_loc = {
+        "street": "Rengstorff Avenue",
+        "zip": "94041"
+    }
+
+    # get to the website
+    costco_sameday.navigate_to_storefront(page)
+
+    try:
+        costco_sameday.set_location(page, costco_loc["street"], costco_loc["zip"])
+    except TimeoutError:
+        logger.warning("set_location has timed out! This probably is fine... proceeding anyway.")
+
+    # now go to a product
+    for url in PRODUCT_URLS["costco"]:
+        page.goto(url)
+
+        # extract information
+        product = {
+            "name": costco_sameday.get_product_name(page),
+            "sku": costco_sameday.get_product_inventory_number(page),
+            "price": costco_sameday.get_product_price(page),
+            "availability": costco_sameday.get_product_availability(page),
+            "date": datetime.now(),
+            "location": costco_loc["street"] + ", " + costco_loc["zip"],
+        }
+
+        logger.info(f"Extracted information for \"{product['name']}\" from {url}...")
+        logger.info(f"{product}")
+
+    logger.info("Taking screenshot...")
+    page.screenshot(path="test-screenshot.no-git.png")
+
+
 if __name__ == "__main__":
     with sync_playwright() as p:
-        # TODO: remove headless setting
-        browser = p.firefox.launch(headless = False)
-
-        logger.info("Creating new browser instance...")
-        context = browser.new_context(viewport = {'width': 1920, 'height': 1080})
+        browser, context = make_browser(
+            playwright = p,
+            launch_config = { "headless": False },
+            browser_config = { "viewport": {"width": 1920, "height": 1080 } },
+        )
 
         logger.info("Loading new tab...")
         page = context.new_page()
@@ -52,38 +150,6 @@ if __name__ == "__main__":
         user_agent = page.evaluate("navigator.userAgent")
         logger.info(f"User agent: {user_agent}")
 
-        # hardcoded for now
-        costco_loc = {
-            "street": "Rengstorff Avenue",
-            "zip": "94041"
-        }
-
-        # get to the website
-        costco_sameday.navigate_to_storefront(page)
-
-        try:
-            costco_sameday.set_location(page, costco_loc["street"], costco_loc["zip"])
-        except TimeoutError:
-            logger.warning("set_location has timed out! This probably is fine... proceeding anyway.")
-
-        # now go to a product
-        for url in PRODUCT_URLS["costco"]:
-            page.goto(url)
-
-            # extract information
-            product = {
-                "name": costco_sameday.get_product_name(page),
-                "sku": costco_sameday.get_product_inventory_number(page),
-                "price": costco_sameday.get_product_price(page),
-                "availability": costco_sameday.get_product_availability(page),
-                "date": datetime.now(),
-                "location": costco_loc["street"] + ", " + costco_loc["zip"],
-            }
-
-            logger.info(f"Extracted information for \"{product['name']}\" from {url}...")
-            logger.info(f"{product}")
-
-        logger.info("Taking screenshot...")
-        page.screenshot(path="test-screenshot.no-git.png")
+        check_sannysoft()
 
         browser.close()
