@@ -89,6 +89,14 @@ def check_sannysoft(page: Page):
 
 
 def get_safeway_products(page: Page):
+    tag = __name__ + "." + inspect.stack()[0][0].f_code.co_name
+
+    if not isinstance(page, Page):
+        raise ValueError(
+            f"({tag}) invalid page parameter. Expecting type playwright.sync_api.Page, "
+            f"received {type(page)} instead"
+        )
+
     safeway_loc = {
         "street": "639 S Bernardo Ave",
         "zip": "94087",
@@ -117,7 +125,15 @@ def get_safeway_products(page: Page):
     page.screenshot(path="test-screenshot.no-git.png")
 
 
-def get_costco_products():
+def get_costco_products(page: Page):
+    tag = __name__ + "." + inspect.stack()[0][0].f_code.co_name
+
+    if not isinstance(page, Page):
+        raise ValueError(
+            f"({tag}) invalid page parameter. Expecting type playwright.sync_api.Page, "
+            f"received {type(page)} instead"
+        )
+
     # hardcoded for now
     costco_loc = {
         "street": "Rengstorff Avenue",
