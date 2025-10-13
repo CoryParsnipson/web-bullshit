@@ -6,8 +6,7 @@ from playwright_stealth import Stealth
 import random
 import time
 
-import config
-import diagnostic
+from lib import config, diagnostic
 from parsers import costco_sameday, safeway
 
 logger = logging.getLogger(__name__)
