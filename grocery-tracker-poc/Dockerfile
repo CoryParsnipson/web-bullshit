@@ -15,6 +15,10 @@ COPY src /home/pwuser
 # need this so we can run playwright executable
 ENV PATH="/home/pwuser/.local/bin:$PATH"
 
+# can be used in python scripts to figure out which environment we are in
+ENV IN_DOCKER=true 
+ENV ENVIRONMENT=dev
+
 # install python dependencies
 RUN cd /home/pwuser && \
 	pip install -r requirements.txt

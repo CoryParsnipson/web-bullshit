@@ -8,6 +8,20 @@ This app was developed with python 3.13.7 on Fedora 42 Linux.
 
 ### Setup
 
+#### Docker
+
+1. Install Docker
+
+1. Run `make build`
+
+1. Run `make run`. (This will run `python main.py` to start the app)
+
+1. The docker container will open port 5900 for VNC, so open a VNC viewer program on the host machine to view. Point it to `localhost:5900`.
+
+1. Further development cycles on docker involve making code changes, then running `make build`, and `make run` and then watching the progress on VNC viewer.
+
+#### Local environment
+
 1. Install python3 and pip.
 
 1. Create virtual environment in this directory.
