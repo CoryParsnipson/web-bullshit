@@ -7,7 +7,7 @@ import random
 import time
 
 from lib import config, diagnostic
-from parsers import costco_sameday, safeway
+from lib.parsers import costco_sameday, safeway
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format = "[%(levelname)s] %(message)s")

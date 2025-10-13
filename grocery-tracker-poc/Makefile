@@ -1,5 +1,5 @@
 build:
-	docker -t cparsnipson/gt-poc docker
+	docker build -t cparsnipson/gt-poc .
 
 # --init recommended to avoid zombie process issues with PID=1
 # --ipc=host recommended for chromium to allow docker container access to the

@@ -1,4 +1,11 @@
-FROM python:3.12.12-slim-trixie
+FROM mcr.microsoft.com/playwright/python:v1.55.0-noble
 
-RUN pip install playwright==1.55.0 && \
-	playwright install --with-deps
+USER pwuser
+WORKDIR /home/pwuser
+
+COPY src /home/pwuser
+
+ENV PATH="/home/pwuser/.local/bin:$PATH"
+
+RUN cd /home/pwuser && \
+	pip install -r requirements.txt
