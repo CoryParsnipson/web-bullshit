@@ -128,10 +128,20 @@ def get_costco_products(page: Page):
 
 if __name__ == "__main__":
     with Stealth().use_sync(sync_playwright()) as p:
+        logger.info("Starting grocery-tracker-poc!")
+        logger.info(f"Environment: {config.environment()}")
+        logger.info(f"Are we in Docker? {'YES' if config.in_docker() else 'NO'}")
+
+        launch_config = { "headless": False }
+        browser_config = { "viewport": {"width": 1920, "height": 1080 } }
+
+        logger.info("Spawning new browser and context with the following params:")
+        logger.info(f"Playwright config: {launch_config}")
+        logger.info(f"Browser config: {browser_config}")
         browser, context = make_browser(
             playwright = p,
-            launch_config = { "headless": False },
-            browser_config = { "viewport": {"width": 1920, "height": 1080 } },
+            launch_config = launch_config,
+            browser_config = browser_config,
         )
 
         logger.info("Loading new tab...")
