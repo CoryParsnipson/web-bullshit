@@ -114,7 +114,7 @@ Website is not great and doesn't keep much information about fresh produce or wa
 
 ### Safeway
 
-Website is pretty good, though the product database is sprawling and large. No issues here.
+Website is pretty good, though the product database is sprawling and large. No issues here. Holy fucking shit, they are loaded to the gills with anti-bot protection.
 
 ### Smart and Final
 
