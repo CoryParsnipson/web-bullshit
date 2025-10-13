@@ -108,6 +108,7 @@ if __name__ == "__main__":
         logger.info(f"Display: {os.environ['DISPLAY'] if 'DISPLAY' in os.environ else 'None'}")
         logger.info(f"Are we in Docker? {'YES' if config.in_docker() else 'NO'}")
         logger.info(f"Pause at beginning? {'YES' if common.should_pause_at_beginning() else 'NO' }")
+        logger.info(f"Browser: {'CHROMIUM' if 'BROWSER' in os.environ and os.environ['BROWSER'] == 'chromium' else 'FIREFOX'}")
 
         launch_config = { "headless": False }
         browser_config = { "viewport": {"width": 1920, "height": 1080 } }

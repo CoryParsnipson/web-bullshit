@@ -7,6 +7,12 @@ build:
 run:
 	docker run -it -p 5900:5900 --rm --init --ipc=host cparsnipson/gt-poc /bin/bash
 
+# run this on host computer
+run-local:
+	source src/.venv/bin/activate && \
+	python src/main.py && \
+	deactivate
+
 shell:
 	docker run -it -p 5900:5900 --rm --init --ipc=host --entrypoint=/bin/bash cparsnipson/gt-poc
 

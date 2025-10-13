@@ -19,6 +19,7 @@ ENV PATH="/home/pwuser/.local/bin:$PATH"
 ENV IN_DOCKER=true
 ENV ENVIRONMENT=dev
 ENV DISPLAY=:0
+ENV BROWSER="chromium"
 
 # install python dependencies
 RUN cd /home/pwuser && \
