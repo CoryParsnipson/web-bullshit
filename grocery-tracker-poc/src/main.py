@@ -1,42 +1,17 @@
 from datetime import datetime
 import inspect
 import logging
+import os
 from playwright.sync_api import expect, Page, Playwright, sync_playwright, TimeoutError
 from playwright_stealth import Stealth
 import random
 import time
 
-from lib import config, diagnostic
+from lib import common, config, diagnostic
 from lib.parsers import costco_sameday, safeway
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format = "[%(levelname)s] %(message)s")
-
-
-def make_browser(playwright: Playwright, launch_config = {}, browser_config = {}):
-    """
-    Make a playwright browser instance
-
-    :param playwright: playwright instance
-    :param launch_config: dictionary with playwright launch config parameters
-    :param browser_config: dictionary with playwright browser context parameters
-
-    :returns: tuple with browser and context
-    """
-    tag = __name__ + "." + inspect.stack()[0][0].f_code.co_name
-
-    if not isinstance(playwright, Playwright):
-        raise ValueError(
-            f"({tag}) invalid playwright parameter. Expecting type playwright.sync_api.Playwright, "
-            f"received {type(playwright)} instead"
-        )
-
-    browser = p.firefox.launch(**launch_config)
-
-    logger.info("Creating new browser instance...")
-    context = browser.new_context(**browser_config)
-
-    return (browser, context)
 
 
 def get_safeway_products(page: Page):
@@ -126,24 +101,13 @@ def get_costco_products(page: Page):
     page.screenshot(path="test-screenshot.no-git.png")
 
 
-def should_pause_at_beginning():
-    if config.pause_at_beginning() == None:
-        if config.environment() == "dev" and config.in_docker():
-            return True
-        else:
-            return False
-    elif config.pause_at_beginning() == False:
-        return False
-    else:
-        return True
-
-
 if __name__ == "__main__":
     with Stealth().use_sync(sync_playwright()) as p:
         logger.info("Starting grocery-tracker-poc!")
         logger.info(f"Environment: {config.environment()}")
+        logger.info(f"Display: {os.environ['DISPLAY'] if 'DISPLAY' in os.environ else 'None'}")
         logger.info(f"Are we in Docker? {'YES' if config.in_docker() else 'NO'}")
-        logger.info(f"Pause at beginning? {'YES' if should_pause_at_beginning() else 'NO' }")
+        logger.info(f"Pause at beginning? {'YES' if common.should_pause_at_beginning() else 'NO' }")
 
         launch_config = { "headless": False }
         browser_config = { "viewport": {"width": 1920, "height": 1080 } }
@@ -151,7 +115,7 @@ if __name__ == "__main__":
         logger.info("Spawning new browser and context with the following params:")
         logger.info(f"Playwright config: {launch_config}")
         logger.info(f"Browser config: {browser_config}")
-        browser, context = make_browser(
+        browser, context = common.make_browser(
             playwright = p,
             launch_config = launch_config,
             browser_config = browser_config,
@@ -161,9 +125,10 @@ if __name__ == "__main__":
         page = context.new_page()
 
         # lets pause as a convenience so we have time to connect to vnc and press continue
-        if should_pause_at_beginning():
-            page.pause()
+        if common.should_pause_at_beginning():
+            common.pause_page(page)
 
-        diagnostic.goto_sannysoft(page)
+        diagnostic.goto_scrapethissite_forms(page)
+        time.sleep(10)
 
         browser.close()
