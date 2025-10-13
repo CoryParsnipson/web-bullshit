@@ -5,4 +5,10 @@ build:
 # --ipc=host recommended for chromium to allow docker container access to the
 #   host pc's resources
 run:
-	docker run -it --rm --init --ipc=host cparsnipson/gt-poc /bin/bash
+	docker run -it -p 5900:5900 --rm --init --ipc=host cparsnipson/gt-poc /bin/bash
+
+shell:
+	docker run -it -p 5900:5900 --rm --init --ipc=host --entrypoint=/bin/bash cparsnipson/gt-poc
+
+root-shell:
+	docker run -it -p 5900:5900 --rm --init --ipc=host --user=root --entrypoint=/bin/bash cparsnipson/gt-poc
