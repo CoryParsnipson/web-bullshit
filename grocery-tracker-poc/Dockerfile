@@ -16,7 +16,7 @@ COPY src /home/pwuser
 ENV PATH="/home/pwuser/.local/bin:$PATH"
 
 # can be used in python scripts to figure out which environment we are in
-ENV IN_DOCKER=true 
+ENV IN_DOCKER=true
 ENV ENVIRONMENT=dev
 
 # install python dependencies

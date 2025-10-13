@@ -126,11 +126,24 @@ def get_costco_products(page: Page):
     page.screenshot(path="test-screenshot.no-git.png")
 
 
+def should_pause_at_beginning():
+    if config.pause_at_beginning() == None:
+        if config.environment() == "dev" and config.in_docker():
+            return True
+        else:
+            return False
+    elif config.pause_at_beginning() == False:
+        return False
+    else:
+        return True
+
+
 if __name__ == "__main__":
     with Stealth().use_sync(sync_playwright()) as p:
         logger.info("Starting grocery-tracker-poc!")
         logger.info(f"Environment: {config.environment()}")
         logger.info(f"Are we in Docker? {'YES' if config.in_docker() else 'NO'}")
+        logger.info(f"Pause at beginning? {'YES' if should_pause_at_beginning() else 'NO' }")
 
         launch_config = { "headless": False }
         browser_config = { "viewport": {"width": 1920, "height": 1080 } }
@@ -146,6 +159,10 @@ if __name__ == "__main__":
 
         logger.info("Loading new tab...")
         page = context.new_page()
+
+        # lets pause as a convenience so we have time to connect to vnc and press continue
+        if should_pause_at_beginning():
+            page.pause()
 
         diagnostic.goto_sannysoft(page)
 
