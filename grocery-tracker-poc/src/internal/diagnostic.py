@@ -1,6 +1,6 @@
 import inspect
 import logging
-from playwright.sync_api import expect, Page
+from patchright.sync_api import expect, Page
 import re
 import time
 

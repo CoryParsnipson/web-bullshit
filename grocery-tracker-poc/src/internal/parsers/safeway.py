@@ -1,7 +1,6 @@
 import inspect
 import logging
-import playwright
-from playwright.sync_api import expect
+from patchright.sync_api import expect, Page
 import re
 
 STOREFRONT_URL="https://www.safeway.com"
@@ -22,7 +21,7 @@ def navigate_to_storefront(page, storefront_url = STOREFRONT_URL):
     """
     tag = __name__ + "." + inspect.stack()[0][0].f_code.co_name
 
-    if not isinstance(page, playwright.sync_api.Page):
+    if not isinstance(page, Page):
         raise ValueError(
             f"({tag}) page parameter is invalid. Expecting type playwright.sync_api.Page, "
             f"instead received {type(page)}"
@@ -44,7 +43,7 @@ def set_location(page, street_address, zipcode):
     """
     tag = __name__ + "." + inspect.stack()[0][0].f_code.co_name
 
-    if not isinstance(page, playwright.sync_api.Page):
+    if not isinstance(page, Page):
         raise ValueError(
             f"({tag}) page parameter is invalid. Expecting type playwright.sync_api.Page, "
             f"instead received {type(page)}"

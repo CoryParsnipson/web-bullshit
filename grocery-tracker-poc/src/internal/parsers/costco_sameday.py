@@ -1,7 +1,6 @@
 import inspect
 import logging
-import playwright
-from playwright.sync_api import expect, Page
+from patchright.sync_api import expect, Page
 import re
 
 DEFAULT_ZIPCODE = "94041"

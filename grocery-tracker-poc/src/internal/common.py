@@ -1,7 +1,7 @@
 import inspect
 import logging
 import os
-from playwright.sync_api import Page, Playwright
+from patchright.sync_api import Page, Playwright
 import subprocess
 
 from .config import *
@@ -28,12 +28,13 @@ def make_browser(playwright: Playwright, launch_config = {}, browser_config = {}
         )
 
     if "BROWSER" in os.environ and os.environ["BROWSER"] == "chromium":
-        browser = playwright.chromium.launch(**launch_config)
+        browser = playwright.chromium.launch_persistent_context(**launch_config)
     else:
         browser = playwright.firefox.launch(**launch_config)
 
     logger.info("Creating new browser instance...")
-    context = browser.new_context(**browser_config)
+    #context = browser.new_context(**browser_config)
+    context = None
 
     return (browser, context)
 

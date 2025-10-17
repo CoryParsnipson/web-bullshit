@@ -20,9 +20,15 @@ ENV IN_DOCKER=true
 ENV ENVIRONMENT=dev
 ENV DISPLAY=:0
 ENV BROWSER="chromium"
+ENV PAUSE_AT_BEGINNING=
 
 # install python dependencies
 RUN cd /home/pwuser && \
 	pip install -r requirements.txt
+
+USER root
+RUN pip install patchright && patchright install chrome
+
+USER pwuser
 
 ENTRYPOINT [ "bash", "-c", "./docker-entrypoint.sh" ]

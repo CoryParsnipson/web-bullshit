@@ -2,8 +2,7 @@ from datetime import datetime
 import inspect
 import logging
 import os
-from playwright.sync_api import expect, Page, Playwright, sync_playwright, TimeoutError
-from playwright_stealth import Stealth
+from patchright.sync_api import expect, Page, Playwright, sync_playwright, TimeoutError
 import random
 import time
 
@@ -102,7 +101,7 @@ def get_costco_products(page: Page):
 
 
 if __name__ == "__main__":
-    with Stealth().use_sync(sync_playwright()) as p:
+    with sync_playwright() as p:
         logger.info("Starting grocery-tracker-poc!")
         logger.info(f"Environment: {config.environment()}")
         logger.info(f"Display: {os.environ['DISPLAY'] if 'DISPLAY' in os.environ else 'None'}")
@@ -110,7 +109,12 @@ if __name__ == "__main__":
         logger.info(f"Pause at beginning? {'YES' if common.should_pause_at_beginning() else 'NO' }")
         logger.info(f"Browser: {'CHROMIUM' if 'BROWSER' in os.environ and os.environ['BROWSER'] == 'chromium' else 'FIREFOX'}")
 
-        launch_config = { "headless": False }
+        launch_config = {
+            "user_data_dir": "/home/pwuser/data",
+            "channel": "chrome",
+            "headless": False,
+            "viewport": {"width": 1920, "height": 1080 },
+        }
         browser_config = {
             "viewport": {"width": 1920, "height": 1080 },
         }
@@ -125,7 +129,8 @@ if __name__ == "__main__":
         )
 
         logger.info("Loading new tab...")
-        page = context.new_page()
+        #page = context.new_page()
+        page = browser.new_page()
 
         # lets pause as a convenience so we have time to connect to vnc and press continue
         if common.should_pause_at_beginning():
