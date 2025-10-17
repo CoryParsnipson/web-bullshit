@@ -7,8 +7,8 @@ from playwright_stealth import Stealth
 import random
 import time
 
-from lib import common, config, diagnostic
-from lib.parsers import costco_sameday, safeway
+from internal import common, config, diagnostic
+from internal.parsers import costco_sameday, safeway
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format = "[%(levelname)s] %(message)s")
@@ -111,7 +111,9 @@ if __name__ == "__main__":
         logger.info(f"Browser: {'CHROMIUM' if 'BROWSER' in os.environ and os.environ['BROWSER'] == 'chromium' else 'FIREFOX'}")
 
         launch_config = { "headless": False }
-        browser_config = { "viewport": {"width": 1920, "height": 1080 } }
+        browser_config = {
+            "viewport": {"width": 1920, "height": 1080 },
+        }
 
         logger.info("Spawning new browser and context with the following params:")
         logger.info(f"Playwright config: {launch_config}")
@@ -129,7 +131,6 @@ if __name__ == "__main__":
         if common.should_pause_at_beginning():
             common.pause_page(page)
 
-        diagnostic.goto_scrapethissite_forms(page)
-        time.sleep(10)
+        diagnostic.check_sannysoft(page)
 
         browser.close()
