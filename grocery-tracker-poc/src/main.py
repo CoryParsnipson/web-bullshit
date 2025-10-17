@@ -124,6 +124,17 @@ if __name__ == "__main__":
             browser_config = browser_config,
         )
 
+        # see if we can change phantom etsl fingerprint like this
+        # NOTE: THIS IS WORKING!!!
+        #context.add_init_script(script="""(function() {
+        #        temp = window.eval;
+        #        console.log("inside add_init_script!");
+        #        window.eval = function(code){return temp(code)};
+
+        #        navigator.getBattery = function() { return true; };
+        #    })();
+        #""")
+
         logger.info("Loading new tab...")
         page = context.new_page()
 
