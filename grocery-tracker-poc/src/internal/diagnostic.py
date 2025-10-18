@@ -16,6 +16,26 @@ SANNYSOFT_URL = "https://bot.sannysoft.com/"
 SCRAPETHISSITE_URL = "https://www.scrapethissite.com"
 SCRAPETHISSITE_FORM_SANDBOX_URL = SCRAPETHISSITE_URL + "/pages/forms/"
 
+ENTROPY_WARNING_THRESHOLD = 1000
+
+
+def run_stealth_diagnostic(page: Page, quiet = True):
+    """
+    Run a collection of tests to try and get an idea of how this program looks
+    to others.
+    """
+    tag = __name__ + "." + inspect.stack()[0][0].f_code.co_name
+
+    if not isinstance(page, Page):
+        raise ValueError(
+            f"({tag}) invalid page parameter. Expecting type playwright.sync_api.Page, "
+            f"received {type(page)} instead"
+        )
+
+    check_fingerprint_score(page)
+    check_entropy(page, quiet)
+    check_sannysoft(page)
+
 
 def print_webdriver_status(page: Page):
     """
@@ -92,7 +112,7 @@ def check_fingerprint_score(page: Page):
     return risk_score
 
 
-def check_entropy(page: Page):
+def check_entropy(page: Page, quiet = False):
     """
     Go to diagnostic tool for browser fingerprinting uniqueness score.
     """
@@ -113,7 +133,8 @@ def check_entropy(page: Page):
     expect(page.locator("id=fp_status")).to_be_visible(timeout=60000)
     expect(page.locator("id=fp_status")).not_to_be_empty(timeout=30000)
 
-    logger.info(f"({tag}) *** RESULTS ***")
+    if not quiet:
+        logger.info(f"({tag}) *** RESULTS ***")
 
     for result in page.locator(".results-table").filter(has=page.locator("h4")).all():
         header = result.locator("h4").inner_text()
@@ -127,16 +148,23 @@ def check_entropy(page: Page):
         if "odds" in match.groupdict():
             uniqueness = float(match.groupdict()["odds"])
 
-        logger.info(f"({tag}) === {header} ({uniqueness})")
-        logger.info(f"({tag})   {item_name}")
+        if not quiet:
+            logger.info(f"({tag}) === {header} ({uniqueness})")
+            logger.info(f"({tag})   {item_name}")
 
-    logger.info(f"({tag}) *** OVERALL ASSESSMENT ***")
+        if quiet and uniqueness >= ENTROPY_WARNING_THRESHOLD:
+            logger.warning(f"({tag}) WARNING highly unique {header} ({uniqueness})")
 
-    status = page.locator("id=fp_status").inner_text()
-    logger.info(f"({tag}) {status}")
+    if not quiet:
+        logger.info(f"({tag}) *** OVERALL ASSESSMENT ***")
+
+        status = page.locator("id=fp_status").inner_text()
+        logger.info(f"({tag}) {status}")
 
     overall_uniqueness = page.locator("div.entropy").locator("p").nth(0).inner_text().replace("\r\n", "")
-    logger.info(f"({tag}) {overall_uniqueness}")
+
+    if not quiet:
+        logger.info(f"({tag}) {overall_uniqueness}")
 
     match = re.search(r"one in (?P<uniqueness>[0-9]*?(\.[0-9]+)?) browsers", overall_uniqueness)
     return float(match.groupdict()["uniqueness"]) if "uniqueness" in match.groupdict() else 1.0

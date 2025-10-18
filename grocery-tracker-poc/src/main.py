@@ -142,6 +142,6 @@ if __name__ == "__main__":
         if common.should_pause_at_beginning():
             common.pause_page(page)
 
-        diagnostic.check_sannysoft(page)
+        diagnostic.run_stealth_diagnostic(page)
 
         browser.close()
