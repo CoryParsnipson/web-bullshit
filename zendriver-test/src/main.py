@@ -15,33 +15,6 @@ ENTROPY_WARNING_THRESHOLD = 1000
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format = "[%(levelname)s] %(message)s")
 
-# there seems to be an issue in the nodriver code right now where running
-# query_selector, or select, or wait_for will not respect timeout and throw
-# a ProtocolException if the element does not exist, and the wrapper functions
-# do not catch this error.
-async def wait_for(page, selector = "", text = "", timeout = 10):
-    """
-    Custom wait_for that wraps nodrivers to fix issue
-    """
-    loop = asyncio.get_running_loop()
-    start_time = loop.time()
-
-    try:
-        item = await page.wait_for(selector, text, timeout)
-    except zd.core.connection.ProtocolException:
-        item = None
-
-    while not item:
-        try:
-            item = await page.wait_for(selector, text, timeout)
-        except zd.core.connection.ProtocolException:
-            pass
-
-        if loop.time() - start_time > timeout:
-            return item
-        await asyncio.sleep(0.5)
-    return item
-
 
 async def run_diagnostics(browser: zd.Browser, quiet = True):
     """
@@ -73,7 +46,7 @@ async def get_fingerprint_score(browser: zd.Browser, quiet = False):
 
     # print out some generic bot test results and fingerprint id
     if not quiet:
-        await wait_for(page, "#fingerprintHash", timeout = 30)
+        await page.wait_for("#fingerprintHash", timeout = 30)
         fingerprint_hash_element = await page.select("#fingerprintHash")
 
         fingerprint_hash_text = fingerprint_hash_element.text_all
@@ -134,9 +107,9 @@ async def check_entropy(browser: zd.Browser, quiet = False):
     await test_button.click()
 
     # wait for results to become available
-    await wait_for(page, "#fp_status > span", timeout = 30)
-    await wait_for(page, "#ad_status > span", timeout = 30)
-    await wait_for(page, "#tracker_status > span", timeout = 30)
+    await page.wait_for("#fp_status > span", timeout = 30)
+    await page.wait_for("#ad_status > span", timeout = 30)
+    await page.wait_for("#tracker_status > span", timeout = 30)
 
     # get assessment summary
     assessment = await page.query_selector("#fp_status > span")
