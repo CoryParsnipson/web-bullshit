@@ -99,7 +99,9 @@ async def check_entropy(browser: zd.Browser, quiet = False):
 
     page = await browser.get(COVER_YOUR_TRACKS_URL)
 
-    test_button = await page.select("a#kcarterlink", timeout = 30)
+    # looks like you still can't wait for text match in zendriver...
+    await page.wait_for(selector = "a#kcarterlink", timeout = 30)
+    test_button = await page.find_element_by_text("Test Your Browser", best_match = True)
 
     logger.info(f"({tag}) starting browser test...")
 
