@@ -126,7 +126,7 @@ async def check_entropy(browser: uc.Browser, quiet = False):
 
     page = await browser.get(COVER_YOUR_TRACKS_URL)
 
-    #await page.wait_for(text = "Test Your Browser", timeout = 30) # this doesn't work, seems to be a nodriver bug
+    await wait_for(page, text = "Test Your Browser", timeout = 30)
     test_button = await page.select("a#kcarterlink", timeout = 30)
 
     logger.info(f"({tag}) starting browser test...")
