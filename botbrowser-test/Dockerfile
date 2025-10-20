@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 debian:bookworm-slim
+FROM debian:bookworm-slim
 
 # Path to BotBrowser binary
 ENV BOTBROWSER_EXEC_PATH=/usr/bin/chromium-browser-stable
@@ -20,6 +20,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy and install BotBrowser package
+RUN wget -q https://github.com/botswin/BotBrowser/releases/download/v141-20251012/botbrowser_20251013_141.0.7390.77_x86_64.deb && \
+	dpkg -i botbrowser_*.deb || apt-get update && apt-get install -f -y && \
+  rm botbrowser_*.deb
+
+# install python
 RUN ln -s /usr/bin/python3.11 /usr/bin/python
 
 # Set working directory
@@ -27,16 +33,14 @@ WORKDIR /botbrowser
 
 COPY docker-entrypoint.sh /botbrowser
 COPY start-x.sh /botbrowser
+COPY requirements.txt /botbrowser
 
 COPY src /botbrowser/src
 
-# Copy and install BotBrowser package
-RUN wget -q https://github.com/botswin/BotBrowser/releases/download/v141-20251012/botbrowser_20251013_141.0.7390.77_x86_64.deb && \
-	dpkg -i botbrowser_*.deb || apt-get update && apt-get install -f -y && \
-  rm botbrowser_*.deb
+RUN pip install --break-system-packages -r requirements.txt
 
 # Declare mount points for profiles and user data
 VOLUME ["/botbrowser/profiles", "/botbrowser/user-data-dir"]
 
 # ENTRYPOINT: start Xvfb then Chromium with CDP and user args
-ENTRYPOINT [ "bash", "-c", "./docker-entrypoint.sh" ]
+ENTRYPOINT [ "./docker-entrypoint.sh" ]
