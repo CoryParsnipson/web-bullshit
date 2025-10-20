@@ -3,6 +3,10 @@ Incubation repo for website ideas
 
 ## projects
 
+### botbrowser-test
+
+Learn how to use botbrowser. Go to diagnostic websites and view statistics.
+
 ### grocery-tracker-poc
 
 POC for app that scrapes the web to find the best price for grocery store items.
