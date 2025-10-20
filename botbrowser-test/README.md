@@ -2,6 +2,18 @@
 
 Test botbrowser automation tool.
 
+> [!CAUTION]
+> This tool is paid subscription software disguised as free software. For free,
+> you can only use the demo profiles and that limits you to bot-script javascript
+> usage, and not any of the other automation interfaces. See
+> [this page](https://github.com/botswin/BotBrowser/tree/main/examples/bot-script) 
+> for more information about doing that.
+>
+> 30 profiles per month is $299 a month, and 100 profiles is $499 a month. You
+> can do a one time purchase of profiles of $599 for 30 or $999 for 100 profiles
+> locked to one version. Of course, payment is limited to only USDT (a crypto
+> currency).
+
 Repo [here](https://github.com/botswin/BotBrowser/tree/main).
 
 ## setup
