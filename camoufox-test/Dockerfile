@@ -18,15 +18,15 @@ RUN apt-get update && apt-get install -y \
 # create non root user
 RUN adduser --shell /bin/bash gwart
 
-# copy project code into container
-COPY docker /home/gwart/docker
-COPY src /home/gwart/src
-
 USER gwart
 WORKDIR /home/gwart
 
 # install camoufox
 RUN pip install --break-system-packages camoufox && \
 	python -m camoufox fetch
+
+# copy project code into container
+COPY docker /home/gwart/docker
+COPY src /home/gwart/src
 
 ENTRYPOINT [ "bash", "-c", "-l", "./docker/entrypoint.sh" ]
